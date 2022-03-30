@@ -2,10 +2,20 @@
 pragma solidity ^0.8.0;
 
 contract ERC721 {
-    event Transfer(address from, address to, uint256 tokenId);
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        uint256 indexed tokenId
+    );
+    event Approval(
+        address indexed owner,
+        address indexed approved,
+        uint256 indexed tokenId
+    );
 
     mapping(uint256 => address) private _tokenOwner;
     mapping(address => uint256) private _ownedTokensCount;
+    mapping(uint256 => address) private _tokenApprovals;
 
     function balanceOf(address _owner) public view returns (uint256) {
         require(_owner != address(0), "owner query for non-existent tokens");
@@ -33,5 +43,59 @@ contract ERC721 {
         _ownedTokensCount[to] += 1;
 
         emit Transfer(address(0), to, tokenId);
+    }
+
+    function _transferFrom(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) internal {
+        require(
+            _to != address(0),
+            "Error - ERC721 Transfer to the zero address"
+        );
+        require(
+            this.ownerOf(_tokenId) == _from,
+            "Trying to transfer a token the address does not match owner"
+        );
+
+        _ownedTokensCount[_from] -= 1;
+        _ownedTokensCount[_to] += 1;
+        _tokenOwner[_tokenId] = _to;
+
+        emit Transfer(_from, _to, _tokenId);
+    }
+
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) public {
+        require(isApprovedOrOwner(msg.sender, _tokenId));
+        _transferFrom(_from, _to, _tokenId);
+    }
+
+    function approve(address _to, uint256 tokenId) public {
+        address owner = this.ownerOf(tokenId);
+        require(_to != owner, "Error - Approval to current owner");
+        require(
+            msg.sender == owner,
+            "Current caller is not the owner of token"
+        );
+        _tokenApprovals[tokenId] = _to;
+        emit Approval(owner, _to, tokenId);
+    }
+
+    function isApprovedOrOwner(address spender, uint256 tokenId)
+        internal
+        view
+        returns (bool)
+    {
+        require(_exists(tokenId), "token does not exist");
+        address owner = this.ownerOf(tokenId);
+
+        // return (spender == owner || getApproved(tokenId) == spender);
+        return (spender == owner);
+        // return (0)
     }
 }
