@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract ERC721 {
+import "./ERC165.sol";
+import "./interfaces/IERC721.sol";
+
+contract ERC721 is ERC165, IERC721 {
     event Transfer(
         address indexed from,
         address indexed to,
@@ -17,12 +20,17 @@ contract ERC721 {
     mapping(address => uint256) private _ownedTokensCount;
     mapping(uint256 => address) private _tokenApprovals;
 
-    function balanceOf(address _owner) public view returns (uint256) {
+    function balanceOf(address _owner) public view override returns (uint256) {
         require(_owner != address(0), "owner query for non-existent tokens");
         return _ownedTokensCount[_owner];
     }
 
-    function ownerOf(uint256 _tokenId) external view returns (address) {
+    function ownerOf(uint256 _tokenId)
+        external
+        view
+        override
+        returns (address)
+    {
         address owner = _tokenOwner[_tokenId];
         require(owner != address(0), "owner query for non-existent tokens");
         return owner;
@@ -70,7 +78,7 @@ contract ERC721 {
         address _from,
         address _to,
         uint256 _tokenId
-    ) public {
+    ) public override {
         require(isApprovedOrOwner(msg.sender, _tokenId));
         _transferFrom(_from, _to, _tokenId);
     }
