@@ -5,22 +5,32 @@ import "./ERC165.sol";
 import "./interfaces/IERC721.sol";
 
 contract ERC721 is ERC165, IERC721 {
-    event Transfer(
-        address indexed from,
-        address indexed to,
-        uint256 indexed tokenId
-    );
-    event Approval(
-        address indexed owner,
-        address indexed approved,
-        uint256 indexed tokenId
-    );
+    // event Transfer(
+    //     address indexed from,
+    //     address indexed to,
+    //     uint256 indexed tokenId
+    // );
+    // event Approval(
+    //     address indexed owner,
+    //     address indexed approved,
+    //     uint256 indexed tokenId
+    // );
 
     mapping(uint256 => address) private _tokenOwner;
     mapping(address => uint256) private _ownedTokensCount;
     mapping(uint256 => address) private _tokenApprovals;
 
-    function balanceOf(address _owner) public view override returns (uint256) {
+    constructor() {
+        _registerInterface(
+            bytes4(
+                keccak256("balanceOf(bytes4)") ^
+                    keccak256("ownerOf(bytes4)") ^
+                    keccak256("_transferFrom(bytes4)")
+            )
+        );
+    }
+
+    function balanceOf(address _owner) public view returns (uint256) {
         require(_owner != address(0), "owner query for non-existent tokens");
         return _ownedTokensCount[_owner];
     }

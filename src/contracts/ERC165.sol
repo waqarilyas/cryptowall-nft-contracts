@@ -6,7 +6,7 @@ import "./interfaces/IERC165.sol";
 contract ERC165 is IERC165 {
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    constructor() public {
+    constructor() {
         _registerInterface(bytes4(keccak256("supportsInterface(bytes4)")));
     }
 
